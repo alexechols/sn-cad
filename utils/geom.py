@@ -53,7 +53,7 @@ class PrimitiveGeomObject:
             self.scale = Vector3(*scale)
 
         #Euler angles type checking and initialization
-
+        
         
 class GeomObject:
     pass
