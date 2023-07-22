@@ -15,6 +15,7 @@ class Polygon:
         self.convex = True
         self.normal = plane_normal
         self.origin = plane_origin
+        self.centroid = Vector2(0, 0)
 
         prev_cross_mag = 0
         delta_ang = 0
@@ -32,6 +33,8 @@ class Polygon:
                 
                 self.points.append(Vector2(*point))
             
+            self.centroid += self.points[-1]
+
             if len(self.points) > 1:
                 self.sides.append(self.points[-1] - self.points[-2])
 
@@ -56,6 +59,8 @@ class Polygon:
                         raise ValueError("Polygon is not valid, vertex cannot form an angle of zero degrees")
 
         self.sides.append(self.points[0] - self.points[-1])
+
+        self.centroid = self.centroid/len(self.points)
 
         cross = Vector2.signed_cross_mag(self.sides[-2], self.sides[-1])
         cross_mag = cross/abs(cross)
@@ -203,4 +208,3 @@ class Polygon:
 
         return ortho_count/len(self.sides)
     
-    def 
