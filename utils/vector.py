@@ -208,3 +208,33 @@ class Vector2(Vector3):
             raise ValueError(f"Cross product is not defined for objects of type(s) {type(vect_1)} and {type(vect_2)}")
 
         return Vector3.cross(vect_1, vect_2).z
+
+class Plane:
+    def __init__(self, vect_1, vect_2, point):
+        if not isinstance(vect_1, Vector3):
+            raise ValueError("vect_1 must be a Vector3!")
+        
+        if not isinstance(vect_2, Vector3):
+            raise ValueError("vect_1 must be a Vector3!")
+        
+        if vect_1.is_multiple(vect_2):
+            raise ValueError("vect_1 and vect_2 cannot be scalar multiples of each other!")
+        
+        if not isinstance(point, Vector3):
+            raise ValueError("point must be a Vector3!")
+        
+        self.v1 = vect_1
+        self.v2 = vect_2
+        self.normal = Vector3.cross(vect_1,vect_2)
+        self.point = point
+
+    def in_plane(self, point):
+        if not isinstance(point, Vector3):
+            raise ValueError("point must be a Vector3!")
+        
+        point_vect = point - self.point
+
+        if abs(Vector3.dot(point_vect, self.normal)) < EPS:
+            return True
+        
+        return False

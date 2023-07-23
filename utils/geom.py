@@ -1,7 +1,25 @@
 import numpy as np
 from vector import *
+from polygon import *
 
 class PrimitiveGeomObject:
+    FACE_TEMPLATE = {
+        "plane" : None,
+        "vertices" : set(),
+        "edges" : set()
+    }
+    
+    EDGE_TEMPLATE = {
+        "vertices" : set(),
+        "faces" : set()
+    }
+
+    VERTEX_TEMPLATE = {
+        "pos" : None,
+        "faces" : set(),
+        "edges" : set()
+    }
+
     def __init__(self, scale = 1, pos = Vector3(0, 0, 0), rotor = Quaternion(0, 0, 0, 1), parent = None):
         """
         Generic base class for storing information about geometry objects. 
@@ -93,6 +111,28 @@ class PrimitiveGeomObject:
         
         return self.rotor
 
+class PrimitivePrism(PrimitiveGeomObject):
+    def __init__(self, polygon, scale = 1, pos = Vector3(0, 0, 0), rotor = Quaternion(0, 0, 0, 1), parent = None):
+        super().__init__(scale = scale, pos = pos, rotor = rotor, parent = parent)
 
+        if not isinstance(polygon, Polygon):
+            raise ValueError("polygon must be a Polyon!")
+        
+        self.verticies = []
+        self.edges = []
+        self.faces = []
+
+        for point in polygon.points:
+            vertex = {}
+            vertex["pos"] = Vector3(*(point - polygon.centroid), -0.5)
+
+class PrimitiveCube(PrimitiveGeomObject):
+    POINTS = ((-0.5, -0.5, -0.5), (0.5, -0.5, -0.5), (0.5, 0.5, -0.5), (-0.5, 0.5, -0.5), 
+              (-0.5, -0.5, 0.5), (0.5, -0.5, 0.5), (0.5, 0.5, 0.5), (-0.5, 0.5, 0.5))
+    
+    def __init__(self, scale = 1, pos = Vector3(0, 0, 0), rotor = Quaternion(0, 0, 0, 1), parent = None):
+        super().__init__(scale = scale, pos = pos, rotor = rotor, parent = parent)
+
+        self.points = []
 class GeomObject:
     pass

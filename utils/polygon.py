@@ -2,7 +2,7 @@ from vector import *
 import copy
 
 class Polygon:
-    def __init__(self, points, plane_normal = Vector3(0, 0, 1), plane_origin = Vector3(0, 0, 0)):
+    def __init__(self, points):
         if not isinstance(points, (list, tuple)):
             raise ValueError(f"Unsupported point list type {type(points)}")
         
@@ -13,8 +13,6 @@ class Polygon:
         self.sides = []
         self.ccw = True
         self.convex = True
-        self.normal = plane_normal
-        self.origin = plane_origin
         self.centroid = Vector2(0, 0)
 
         prev_cross_mag = 0
@@ -208,3 +206,63 @@ class Polygon:
 
         return ortho_count/len(self.sides)
     
+    def project(self, to_plane, from_plane):
+        if not isinstance(to_plane, Plane):
+            raise ValueError("to_plane must be a Plane!")
+        
+        if not isinstance(from_plane, Plane):
+            raise ValueError("from_plane must be a Plane!")
+        
+        from_proj_points = self._project_into(from_plane)
+        to_proj_points = []
+
+        for point in from_proj_points:
+            t_intersect = Vector3.dot(to_plane.point - point, to_plane.normal)/Vector3.dot(to_plane.normal, to_plane.normal)
+
+            proj_point = point + to_plane.normal * t_intersect
+
+            to_proj_points.append(proj_point)
+
+        return Polygon._project_out_of(to_proj_points, to_plane)
+        
+    def _project_into(self, plane):
+        if not isinstance(plane, Plane):
+            raise ValueError("plane must be a Plane!")
+        
+        proj_points = []
+
+        for point in self.points:
+            proj_point = Vector3(point.x * plane.v1.x + point.y * plane.v2.x, 
+                                 point.x * plane.v1.y + point.y * plane.v2.y, 
+                                 point.x * plane.v1.z + point.y * plane.v2.z)
+            
+            proj_points.append(proj_point + plane.point)
+
+    @staticmethod
+    def _project_out_of(proj_points, plane):
+        if not isinstance(plane, Plane):
+            raise ValueError("plane must be a Plane!")
+        
+        if not isinstance(proj_points, list[Vector3]):
+            raise ValueError("proj_points must be a list of Vector3s")
+        
+        det = Vector3.dot(plane.normal, plane.normal)
+
+        v1_cross = Vector3.cross(plane.v1, plane.normal)
+        v2_cross = Vector3.cross(plane.v2, plane.normal)
+
+        new_points = []
+
+        for proj_point in proj_points:
+            point = proj_point - plane.point
+
+            new_point = Vector2(
+                plane.normal.z * point.x - v1_cross.z * point.y + v2_cross.z * point.z,
+                plane.normal.y * point.x - v1_cross.y * point.y + v2_cross.y * point.z
+            )/det
+
+            new_points.append(new_point)
+
+        return Polygon(new_points)
+        
+
